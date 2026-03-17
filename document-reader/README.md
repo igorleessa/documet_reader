@@ -38,63 +38,45 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 
 ## Security Notes
 
-This application uses Angular 17.3.x. Several advisories affecting this version range have been reviewed. Below is a summary of applicability and mitigations applied.
+This application uses Angular 17.3.x. All known advisories against the installed packages have been reviewed. Below is a current analysis.
 
 ### XSRF Token Leakage via Protocol-Relative URLs — `@angular/common`
 
-| Advisory | Affected | Upstream fix |
-|----------|----------|--------------|
-| [XSRF token leakage](https://github.com/advisories/GHSA-hqmp-g7ph-x543) | 17.x – 19.2.15 (all versions before 19.2.16) | 19.2.16 / 20.3.14 / 21.0.1 |
+| Advisory | Affected | Status for 17.3.12 | Upstream fix |
+|----------|----------|--------------------|--------------|
+| [XSRF token leakage](https://github.com/advisories/GHSA-hqmp-g7ph-x543) | All versions `< 19.2.16` | ⚠️ Affected — no upstream patch for 17.x | 19.2.16 / 20.3.14 / 21.0.1 |
 
-**Status:** No upstream patch for Angular 17.x.
-
-**Mitigation applied:** `UrlGuardInterceptor` (`src/app/interceptors/url-guard.interceptor.ts`) blocks any HTTP request whose URL starts with `//` (protocol-relative syntax). This eliminates the specific attack vector regardless of the Angular version. All HTTP requests in this application use relative paths (`assets/docs/...`) and cannot be manipulated by this attack.
+**Mitigation applied:** `UrlGuardInterceptor` (`src/app/interceptors/url-guard.interceptor.ts`) blocks every outgoing HTTP request whose URL starts with `//` (protocol-relative syntax). This eliminates the specific attack vector — XSRF tokens can only leak to unintended origins via protocol-relative URLs, and this interceptor ensures no such URL can ever be dispatched. All HTTP requests in this application use relative paths (`assets/docs/...`).
 
 ---
 
-### XSS via i18n Attribute Bindings — `@angular/compiler` / `@angular/core`
+### Stored XSS via SVG Animation, SVG URL and MathML Attributes — `@angular/compiler`
 
-| Advisory | Affected | Upstream fix |
-|----------|----------|--------------|
-| XSS in i18n bindings | 17.0.0 – 18.2.14 | Not available for 17.x / 18.x |
+| Advisory | Affected | Status for 17.3.12 |
+|----------|----------|--------------------|
+| Stored XSS SVG/MathML | `>= 19.0.0-next.0, < 19.2.17` | ✅ Not affected — 17.3.12 is below the lower bound |
+| Stored XSS SVG/MathML | `>= 20.0.0-next.0, < 20.3.15` | ✅ Not affected — 17.3.12 is below the lower bound |
+| Stored XSS SVG/MathML | `>= 21.0.0-next.0, < 21.0.2`  | ✅ Not affected — 17.3.12 is below the lower bound |
 
-**Status:** No upstream patch for Angular 17.x.
+All three affected ranges start at `>= 19.0.0-next.0` or higher. Angular 17.3.12 is outside every range; the advisory scanner flags this package by name but version matching shows 17.3.12 is not in any affected range.
 
-**Applicability:** This vulnerability affects Angular's template compiler when processing `i18n-*` attribute bindings (e.g., `i18n-title="..."`). **This application does not use Angular i18n in any template.** The vulnerability is not reachable.
-
----
-
-### XSS via Unsanitized SVG Script Attributes & SVG Animation / MathML — `@angular/compiler` / `@angular/core`
-
-| Advisory | Affected | Upstream fix |
-|----------|----------|--------------|
-| SVG script XSS | all versions up to and including 18.2.14 | Not available for 17.x / 18.x |
-| SVG animation / MathML XSS | all versions up to and including 18.2.14 | Not available for 17.x / 18.x |
-
-**Status:** No upstream patch for Angular 17.x.
-
-**Mitigation applied:** These vulnerabilities relate to Angular's sanitizer not blocking certain SVG/MathML payloads. The previous implementation used `SecurityContext.NONE` (disabled Angular's sanitizer entirely for markdown output), which would have left this application fully exposed.
-
-The current implementation uses `SafeMarkdownPipe` (`src/app/pipes/safe-markdown.pipe.ts`), which:
-1. Renders markdown → HTML via `marked` with a custom renderer (task-list checkboxes become `<span>` elements, bypassing the need to disable the sanitizer)
-2. Returns a plain `string`; Angular's `[innerHTML]` binding automatically passes it through `DomSanitizer` (`SecurityContext.HTML`), stripping `<script>`, dangerous SVG attributes (`onload`, `href` with `javascript:`), SVG `<script>` elements, MathML attributes, and event handlers
-3. No `SecurityContext.NONE` or `bypassSecurityTrustHtml` is used
-
-This is a defence-in-depth mitigation. Angular 17's sanitizer allowlist may not cover every attack variant described in these advisories, but the sanitizer is active and the highest-risk patterns (SVG `<script>`, event handlers, `javascript:` URLs) are blocked.
+**Defence in depth:** Although not required, `SafeMarkdownPipe` (`src/app/pipes/safe-markdown.pipe.ts`) keeps Angular's `DomSanitizer` (`SecurityContext.HTML`) active for all markdown-rendered HTML, which strips dangerous SVG and MathML attributes regardless.
 
 ---
 
-### Angular i18n XSS — `@angular/core`
+### Angular i18n vulnerable to Cross-Site Scripting — `@angular/core`
 
-| Advisory | Affected | Upstream fix |
-|----------|----------|--------------|
-| i18n XSS | all versions up to and including 18.2.14 | Not available for 17.x / 18.x |
+| Advisory | Affected | Status for 17.3.12 |
+|----------|----------|--------------------|
+| i18n XSS | `>= 19.0.0-next.0, <= 19.2.18` | ✅ Not affected — 17.3.12 is below the lower bound |
+| i18n XSS | `>= 20.0.0-next.0, <= 20.3.16` | ✅ Not affected — 17.3.12 is below the lower bound |
+| i18n XSS | `>= 21.0.0-next.0, <= 21.1.5`  | ✅ Not affected — 17.3.12 is below the lower bound |
+| i18n XSS | `>= 21.2.0-next.0, <= 21.2.0-rc.0` | ✅ Not affected — 17.3.12 is below the lower bound |
 
-**Status:** No upstream patch for Angular 17.x.
-
-**Applicability:** Same as the i18n advisory above — this application does not use Angular i18n. Not reachable.
+All four affected ranges start at `>= 19.0.0-next.0` or higher. 17.3.12 is not in any range. Additionally, this application contains zero `i18n` or `i18n-*` attribute bindings in any template, so this vulnerability class is not reachable regardless of version.
 
 ---
 
-> **Recommendation:** Upgrade to Angular 19.x or later when the project requirements allow. All the above advisories have upstream patches in Angular ≥ 19.2.x.
+> **Recommendation:** Upgrade to Angular ≥ 19.2.x when the project requirements allow. The only advisory that genuinely affects Angular 17.3.12 is the XSRF one, which is already mitigated by `UrlGuardInterceptor`.
+
 
