@@ -1,0 +1,92 @@
+<div class="session-list-page">
+  <div class="page-header">
+    <div class="header-row">
+      <div>
+        <h1 class="page-title">Sessões de Documentos</h1>
+        <p class="page-subtitle">Organize seus documentos em pastas específicas</p>
+      </div>
+      <button class="btn-primary" (click)="toggleCreateForm()">
+        {{ showCreateForm ? '✕ Cancelar' : '+ Nova Sessão' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Create Session Form -->
+  <div class="create-form" *ngIf="showCreateForm">
+    <h2 class="form-title">Nova Sessão</h2>
+    <div class="form-group">
+      <label class="form-label" for="sessionName">Nome da sessão *</label>
+      <input
+        id="sessionName"
+        class="form-input"
+        type="text"
+        [(ngModel)]="newSessionName"
+        placeholder="Ex: Projeto Alpha, Relatórios 2024..."
+        (keyup.enter)="createSession()"
+      />
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="sessionDesc">Descrição (opcional)</label>
+      <input
+        id="sessionDesc"
+        class="form-input"
+        type="text"
+        [(ngModel)]="newSessionDescription"
+        placeholder="Breve descrição da sessão..."
+        (keyup.enter)="createSession()"
+      />
+    </div>
+    <div class="form-actions">
+      <button class="btn-secondary" (click)="toggleCreateForm()">Cancelar</button>
+      <button
+        class="btn-primary"
+        (click)="createSession()"
+        [disabled]="!newSessionName.trim()"
+      >
+        Criar Sessão
+      </button>
+    </div>
+  </div>
+
+  <!-- Sessions Grid -->
+  <div class="sessions-grid" *ngIf="sessions.length > 0">
+    <a
+      *ngFor="let session of sessions"
+      [routerLink]="['/sessions', session.id]"
+      class="session-card"
+    >
+      <div class="session-card-icon">📁</div>
+      <div class="session-card-body">
+        <h2 class="session-card-title">{{ session.name }}</h2>
+        <p class="session-card-description" *ngIf="session.description">
+          {{ session.description }}
+        </p>
+        <div class="session-card-meta">
+          <span class="session-doc-count">
+            {{ session.documents.length }}
+            {{ session.documents.length === 1 ? 'documento' : 'documentos' }}
+          </span>
+          <span class="session-date">{{ formatDate(session.createdAt) }}</span>
+        </div>
+      </div>
+      <div class="session-card-actions">
+        <button
+          class="btn-delete"
+          (click)="deleteSession($event, session.id)"
+          title="Excluir sessão"
+        >
+          🗑️
+        </button>
+        <span class="session-card-arrow">→</span>
+      </div>
+    </a>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="sessions.length === 0 && !showCreateForm">
+    <div class="empty-icon">📂</div>
+    <h2>Nenhuma sessão criada</h2>
+    <p>Crie uma sessão para organizar e fazer upload de documentos</p>
+    <button class="btn-primary" (click)="toggleCreateForm()">+ Criar primeira sessão</button>
+  </div>
+</div>
