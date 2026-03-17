@@ -1,0 +1,33 @@
+<div class="doc-viewer-page">
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Carregando documento...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-state" *ngIf="hasError && !isLoading">
+    <div class="error-icon">⚠️</div>
+    <h2>Documento não encontrado</h2>
+    <p>O arquivo <code>{{ filename }}</code> não pôde ser carregado.</p>
+    <button class="btn-back" (click)="goBack()">← Voltar para a lista</button>
+  </div>
+
+  <!-- Document Content -->
+  <div class="doc-content-wrapper" *ngIf="!isLoading && !hasError">
+    <div class="doc-breadcrumb">
+      <button class="btn-back" (click)="goBack()">← Voltar</button>
+      <span class="breadcrumb-separator">/</span>
+      <span class="breadcrumb-current">{{ document?.name }}</span>
+    </div>
+
+    <article class="doc-article">
+      <!-- SafeMarkdownPipe renders markdown → HTML via `marked`, then sanitizes with
+           Angular's DomSanitizer (SecurityContext.HTML), so no SecurityContext.NONE
+           is required. Task-list checkboxes are rendered as styled <span> elements. -->
+      <div class="markdown-body" [innerHTML]="markdownContent | safeMarkdown"></div>
+    </article>
+  </div>
+
+</div>
