@@ -69,6 +69,35 @@ a {
     height: 64px;
     display: flex;
     align-items: center;
+    gap: 2rem;
+  }
+
+  .header-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: auto;
+
+    .nav-link {
+      padding: 0.4rem 0.875rem;
+      border-radius: var(--radius);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: all 0.2s;
+
+      &:hover {
+        color: var(--text);
+        background: var(--background);
+        text-decoration: none;
+      }
+
+      &.active {
+        color: var(--primary);
+        background: var(--primary-light);
+      }
+    }
   }
 
   .logo {

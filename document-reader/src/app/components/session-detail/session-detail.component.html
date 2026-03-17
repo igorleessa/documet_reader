@@ -1,0 +1,91 @@
+<div class="session-detail-page" *ngIf="session">
+
+  <!-- Breadcrumb -->
+  <div class="doc-breadcrumb">
+    <button class="btn-back" (click)="goBack()">← Voltar</button>
+    <span class="breadcrumb-separator">/</span>
+    <span class="breadcrumb-current">{{ session.name }}</span>
+  </div>
+
+  <!-- Session Header -->
+  <div class="session-header">
+    <div class="session-icon">📁</div>
+    <div class="session-info">
+      <h1 class="session-title">{{ session.name }}</h1>
+      <p class="session-description" *ngIf="session.description">{{ session.description }}</p>
+      <span class="session-date">Criado em {{ formatDate(session.createdAt) }}</span>
+    </div>
+  </div>
+
+  <!-- Upload Area -->
+  <div class="upload-section">
+    <h2 class="section-title">Upload de Documentos</h2>
+
+    <div
+      class="drop-zone"
+      [class.dragging]="isDragging"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)"
+      (click)="openFileDialog()"
+    >
+      <input
+        #fileInput
+        type="file"
+        accept=".md,.txt"
+        multiple
+        style="display:none"
+        (change)="onFileSelected($event)"
+      />
+      <div class="drop-zone-content">
+        <div class="drop-icon">{{ isLoading ? '⏳' : '📤' }}</div>
+        <p class="drop-text" *ngIf="!isLoading">
+          Arraste arquivos aqui ou <span class="drop-link">clique para selecionar</span>
+        </p>
+        <p class="drop-text" *ngIf="isLoading">Enviando arquivos...</p>
+        <p class="drop-hint">Suporta arquivos <code>.md</code> e <code>.txt</code></p>
+      </div>
+    </div>
+
+    <div class="alert alert-error" *ngIf="uploadError">⚠️ {{ uploadError }}</div>
+    <div class="alert alert-success" *ngIf="uploadSuccess">✅ {{ uploadSuccess }}</div>
+  </div>
+
+  <!-- Documents List -->
+  <div class="documents-section">
+    <h2 class="section-title">
+      Documentos
+      <span class="doc-count">{{ session.documents.length }}</span>
+    </h2>
+
+    <div class="docs-grid" *ngIf="session.documents.length > 0">
+      <a
+        *ngFor="let doc of session.documents"
+        [routerLink]="['/sessions', session.id, 'doc', doc.id]"
+        class="doc-card"
+      >
+        <div class="doc-card-icon">📝</div>
+        <div class="doc-card-body">
+          <h3 class="doc-card-title">{{ doc.name }}</h3>
+          <span class="doc-card-filename">{{ doc.filename }}</span>
+          <span class="doc-card-date">{{ formatDate(doc.uploadedAt) }}</span>
+        </div>
+        <div class="doc-card-actions">
+          <button
+            class="btn-remove"
+            (click)="removeDocument($event, doc.id)"
+            title="Remover documento"
+          >
+            🗑️
+          </button>
+          <span class="doc-card-arrow">→</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="empty-docs" *ngIf="session.documents.length === 0">
+      <div class="empty-icon">📄</div>
+      <p>Nenhum documento nesta sessão. Faça upload acima.</p>
+    </div>
+  </div>
+</div>

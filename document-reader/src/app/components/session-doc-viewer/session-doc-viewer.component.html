@@ -1,0 +1,29 @@
+<div class="session-doc-viewer-page" *ngIf="doc && session">
+
+  <!-- Breadcrumb -->
+  <div class="doc-breadcrumb">
+    <a routerLink="/sessions" class="breadcrumb-link">Sessões</a>
+    <span class="breadcrumb-separator">/</span>
+    <a [routerLink]="['/sessions', session.id]" class="breadcrumb-link">{{ session.name }}</a>
+    <span class="breadcrumb-separator">/</span>
+    <span class="breadcrumb-current">{{ doc.name }}</span>
+  </div>
+
+  <!-- Back button -->
+  <div class="viewer-toolbar">
+    <button class="btn-back" (click)="goBack()">← Voltar para a sessão</button>
+  </div>
+
+  <!-- Document Content -->
+  <article class="doc-article">
+    <div class="markdown-body" [innerHTML]="doc.content | safeMarkdown"></div>
+  </article>
+
+</div>
+
+<!-- Not found -->
+<div class="error-state" *ngIf="!doc">
+  <div class="error-icon">⚠️</div>
+  <h2>Documento não encontrado</h2>
+  <button class="btn-back" (click)="goBack()">← Voltar</button>
+</div>
