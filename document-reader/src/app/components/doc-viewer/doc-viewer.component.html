@@ -23,7 +23,10 @@
     </div>
 
     <article class="doc-article">
-      <div class="markdown-body" markdown [data]="markdownContent"></div>
+      <!-- SafeMarkdownPipe renders markdown → HTML via `marked`, then sanitizes with
+           Angular's DomSanitizer (SecurityContext.HTML), so no SecurityContext.NONE
+           is required. Task-list checkboxes are rendered as styled <span> elements. -->
+      <div class="markdown-body" [innerHTML]="markdownContent | safeMarkdown"></div>
     </article>
   </div>
 
