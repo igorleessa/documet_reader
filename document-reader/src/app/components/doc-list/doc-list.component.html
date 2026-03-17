@@ -1,0 +1,32 @@
+<div class="doc-list-page">
+  <div class="page-header">
+    <h1 class="page-title">Documentações</h1>
+    <p class="page-subtitle">
+      Selecione um documento para visualizar seu conteúdo formatado
+    </p>
+  </div>
+
+  <div class="docs-grid">
+    <a
+      *ngFor="let doc of documents"
+      [routerLink]="['/doc', doc.filename]"
+      class="doc-card"
+    >
+      <div class="doc-card-icon">📝</div>
+      <div class="doc-card-body">
+        <h2 class="doc-card-title">{{ doc.name }}</h2>
+        <p class="doc-card-description" *ngIf="doc.description">
+          {{ doc.description }}
+        </p>
+        <span class="doc-card-filename">{{ doc.filename }}</span>
+      </div>
+      <div class="doc-card-arrow">→</div>
+    </a>
+  </div>
+
+  <div class="empty-state" *ngIf="documents.length === 0">
+    <div class="empty-icon">📂</div>
+    <h2>Nenhum documento encontrado</h2>
+    <p>Adicione arquivos <code>.md</code> na pasta <code>src/assets/docs/</code></p>
+  </div>
+</div>
